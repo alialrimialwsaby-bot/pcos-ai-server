@@ -258,6 +258,40 @@ def analyze_patient(data: PatientInput):
   return ai_model.analyze_case(data)
 
 
+# مسار جلب السجلات والتقارير التاريخية للمريضة
+@app.get("/api/history")
+def get_patient_history():
+  try:
+    conn = sqlite3.connect("pcos_records.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM patient_records ORDER BY id DESC LIMIT 20")
+    rows = cursor.fetchall()
+    conn.close()
+
+    history = []
+    for row in rows:
+      history.append({
+          "id": row["id"],
+          "timestamp": row["timestamp"],
+          "insulin": row["insulin"],
+          "testosterone": row["testosterone"],
+          "tsh": row["tsh"],
+          "prolactin": row["prolactin"],
+          "lh": row["lh"],
+          "fsh": row["fsh"],
+          "dheas": row["dheas"],
+          "shbg": row["shbg"],
+          "hba1c": row["hba1c"],
+          "vitD": row["vitD"],
+          "report": row["report"],
+          "has_result": row["has_result"],
+      })
+    return {"status": "success", "history": history}
+  except Exception as e:
+    return {"status": "error", "message": str(e)}
+
+
 if __name__ == "__main__":
   import uvicorn
 
