@@ -251,12 +251,13 @@ class PCOSTheAIModel:
 ai_model = PCOSTheAIModel()
 
 
+# مسار تحليل الفحوصات النصية (JSON)
 @app.post("/api/analyze")
 def analyze_patient(data: PatientInput):
   return ai_model.analyze_case(data)
 
 
-# مسار تحليل صور السونار والألتراساوند (مستقل لرفع الصور عبر Multipart)
+# مسار تحليل صور السونار والألتراساوند (Form & Multipart)
 @app.post("/api/analyze-ultrasound")
 async def analyze_ultrasound_image(
     age: Optional[str] = Form(None),
@@ -337,4 +338,6 @@ def get_patient_history():
 if __name__ == "__main__":
   import uvicorn
 
-  uvicorn.run(app, host="0.0.0.0", port=8000)
+  # استخدام منفذ Railway الديناميكي لمنع أخطاء الـ 502
+  port = int(os.environ.get("PORT", 8000))
+  uvicorn.run(app, host="0.0.0.0", port=port)
